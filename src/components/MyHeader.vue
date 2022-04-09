@@ -36,6 +36,7 @@
             type="text"
             id="autocomplete"
             class="input-error input-xxlarge"
+            v-model="keyword"
           />
           <button
             class="sui-btn btn-xlarge btn-danger"
@@ -53,9 +54,28 @@
 <script>
 export default {
   name: "MyHeader",
+  data() {
+    return {
+      keyword: "",
+    };
+  },
   methods: {
     goSearch() {
-      this.$router.push("/search");
+      // this.$router.push("/search/"+this.keyword+'?k='+this.keyword.toUpperCase());
+      //1.字符串式
+      // this.$router.push(`/search/${this.keyword}?k=${this.keyword.toUpperCase()}`);
+      //2。模板字符串
+      this.$router.push({
+        name: "search",
+        params: {
+          keyword: this.keyword || undefined,
+        },
+        query: {
+          k: this.keyword.toUpperCase(),
+        },
+      });
+      //给push方法传递成功失败回调，解决promise报错
+      //3.对象传法（常用）
     },
   },
 };

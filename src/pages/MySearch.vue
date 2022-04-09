@@ -1,5 +1,8 @@
 <template>
-  <div>搜索</div>
+  <div>搜索
+     {{$route.params.keyword}}
+     {{$route.query.k}}
+  </div>
 </template>
 
 <script>
