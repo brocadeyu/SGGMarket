@@ -1,6 +1,6 @@
 <template>
   <div class="type-nav">
-    <div class="container">
+    <div class="container" @mouseleave="handleleave">
       <h2 class="all">全部商品分类</h2>
       <nav class="nav">
         <a href="###">服装城</a>
@@ -14,26 +14,41 @@
       </nav>
       <div class="sort">
         <div class="all-sort-list2">
-          <div class="item" v-for="c1 in categoryList" :key="c1.categoryId">
+          <!-- 一级 -->
+          <div
+            class="item"
+            v-for="(c1, index) in categoryList"
+            :key="c1.categoryId"
+            @mouseenter="handleenter(index)"
+            :style="{background:CurrentIndex==index?'skyblue':''}"
+          >
+          <!-- js控制一级菜单背景颜色 -->
             <h3>
-              <a href="">{{c1.categoryName}}</a>
+              <a href="">{{ c1.categoryName }}</a>
             </h3>
-            <div class="item-list clearfix">
-              <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
+            <!-- 二级 -->
+            <div
+              class="item-list clearfix"
+              :style="{ display: index == CurrentIndex ? 'block' : 'none' }"
+            >
+              <div
+                class="subitem"
+                v-for="c2 in c1.categoryChild"
+                :key="c2.categoryId"
+              >
                 <dl class="fore">
                   <dt>
-                    <a href="">{{c2.categoryName}}</a>
+                    <a href="">{{ c2.categoryName }}</a>
                   </dt>
                   <dd>
                     <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                      <a href="">{{c3.categoryName}}</a>
+                      <a href="">{{ c3.categoryName }}</a>
                     </em>
                   </dd>
                 </dl>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -41,143 +56,158 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import { mapState } from "vuex";
+import throttle from "lodash/throttle";
+//引入防抖节流处理工具
 export default {
   name: "TypeNav",
   //组件挂载完毕，向服务器发起请求
-  mounted(){
+  mounted() {
     //通知vuex,获取数据，存储在仓库中
-    this.$store.dispatch('categoryList')
+    this.$store.dispatch("categoryList");
   },
-  computed:{
+  data() {
+    return {
+      CurrentIndex: -1,
+    };
+  },
+  computed: {
     ...mapState({
-      categoryList:(state)=>{
+      categoryList: (state) => {
         return state.home.categoryList;
-      }
-    })
-  }
+      },
+    }),
+  },
+  methods: {
+    handleenter: throttle(function (index) {
+      this.CurrentIndex = index;
+    }, 50),
+
+    handleleave() {
+      this.CurrentIndex = -1;
+    },
+    //js控制二三级分类显示与隐藏
+  },
 };
 </script>
 
 <style scoped lang="less">
 .type-nav {
-        border-bottom: 2px solid #e1251b;
+  border-bottom: 2px solid #e1251b;
 
-        .container {
-            width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            position: relative;
+  .container {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    position: relative;
 
-            .all {
-                width: 210px;
-                height: 45px;
-                background-color: #e1251b;
-                line-height: 45px;
-                text-align: center;
-                color: #fff;
-                font-size: 14px;
-                font-weight: bold;
-            }
-
-            .nav {
-                a {
-                    height: 45px;
-                    margin: 0 22px;
-                    line-height: 45px;
-                    font-size: 16px;
-                    color: #333;
-                }
-            }
-
-            .sort {
-                position: absolute;
-                left: 0;
-                top: 45px;
-                width: 210px;
-                height: 461px;
-                position: absolute;
-                background: #fafafa;
-                z-index: 999;
-
-                .all-sort-list2 {
-                    .item {
-                        h3 {
-                            line-height: 30px;
-                            font-size: 14px;
-                            font-weight: 400;
-                            overflow: hidden;
-                            padding: 0 20px;
-                            margin: 0;
-
-                            a {
-                                color: #333;
-                            }
-                        }
-
-                        .item-list {
-                            display: none;
-                            position: absolute;
-                            width: 734px;
-                            min-height: 460px;
-                            background: #f7f7f7;
-                            left: 210px;
-                            border: 1px solid #ddd;
-                            top: 0;
-                            z-index: 9999 !important;
-
-                            .subitem {
-                                float: left;
-                                width: 650px;
-                                padding: 0 4px 0 8px;
-
-                                dl {
-                                    border-top: 1px solid #eee;
-                                    padding: 6px 0;
-                                    overflow: hidden;
-                                    zoom: 1;
-
-                                    &.fore {
-                                        border-top: 0;
-                                    }
-
-                                    dt {
-                                        float: left;
-                                        width: 54px;
-                                        line-height: 22px;
-                                        text-align: right;
-                                        padding: 3px 6px 0 0;
-                                        font-weight: 700;
-                                    }
-
-                                    dd {
-                                        float: left;
-                                        width: 415px;
-                                        padding: 3px 0 0;
-                                        overflow: hidden;
-
-                                        em {
-                                            float: left;
-                                            height: 14px;
-                                            line-height: 14px;
-                                            padding: 0 8px;
-                                            margin-top: 5px;
-                                            border-left: 1px solid #ccc;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        &:hover {
-                            .item-list {
-                                display: block;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    .all {
+      width: 210px;
+      height: 45px;
+      background-color: #e1251b;
+      line-height: 45px;
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
     }
 
+    .nav {
+      a {
+        height: 45px;
+        margin: 0 22px;
+        line-height: 45px;
+        font-size: 16px;
+        color: #333;
+      }
+    }
+
+    .sort {
+      position: absolute;
+      left: 0;
+      top: 45px;
+      width: 210px;
+      height: 461px;
+      position: absolute;
+      background: #fafafa;
+      z-index: 999;
+
+      .all-sort-list2 {
+        .item {
+          h3 {
+            line-height: 30px;
+            font-size: 14px;
+            font-weight: 400;
+            overflow: hidden;
+            padding: 0 20px;
+            margin: 0;
+
+            a {
+              color: #333;
+            }
+          }
+
+          .item-list {
+            display: none;
+            position: absolute;
+            width: 734px;
+            min-height: 460px;
+            background: #f7f7f7;
+            left: 210px;
+            border: 1px solid #ddd;
+            top: 0;
+            z-index: 9999 !important;
+
+            .subitem {
+              float: left;
+              width: 650px;
+              padding: 0 4px 0 8px;
+
+              dl {
+                border-top: 1px solid #eee;
+                padding: 6px 0;
+                overflow: hidden;
+                zoom: 1;
+
+                &.fore {
+                  border-top: 0;
+                }
+
+                dt {
+                  float: left;
+                  width: 54px;
+                  line-height: 22px;
+                  text-align: right;
+                  padding: 3px 6px 0 0;
+                  font-weight: 700;
+                }
+
+                dd {
+                  float: left;
+                  width: 415px;
+                  padding: 3px 0 0;
+                  overflow: hidden;
+
+                  em {
+                    float: left;
+                    height: 14px;
+                    line-height: 14px;
+                    padding: 0 8px;
+                    margin-top: 5px;
+                    border-left: 1px solid #ccc;
+                  }
+                }
+              }
+            }
+          }
+
+        
+        }
+        // .item:hover {
+        //   background-color: skyblue;
+        // }
+      }
+    }
+  }
+}
 </style>
